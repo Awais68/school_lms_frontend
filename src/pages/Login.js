@@ -15,7 +15,6 @@ const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const location = useLocation();
   const cardRef = useRef(null);
   const formRef = useRef(null);
   const logoRef = useRef(null);
@@ -74,7 +73,18 @@ const Login = () => {
       ease: "power2.out",
       delay: 0.5,
     });
-  }, []);
+
+  // Auto-fill credentials from registration
+  useEffect(() => {
+    if (location.state?.email && location.state?.password) {
+      setFormData({
+        email: location.state.email,
+        password: location.state.password,
+      });
+      // Clear the state to prevent auto-fill on refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   const onChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
