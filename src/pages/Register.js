@@ -126,7 +126,7 @@ const Register = () => {
           ease: "back.in(1.7)",
           onComplete: () => {
             // Redirect to login page after successful registration
-            navigate("/login");
+            navigate("/login", { state: { email: formData.email, password: formData.password } });
           },
         });
       } else {
