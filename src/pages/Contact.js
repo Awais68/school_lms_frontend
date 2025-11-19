@@ -119,7 +119,7 @@ const Contact = () => {
                 </h3>
                 <div className="flex gap-4">
                   <a
-                    href="#"
+                    href="https://facebook.com" target="_blank" rel="noopener noreferrer"
                     className="bg-blue-100 w-10 h-10 rounded-full flex items-center justify-center hover:bg-blue-200 transition-colors"
                   >
                     <svg
@@ -131,7 +131,7 @@ const Contact = () => {
                     </svg>
                   </a>
                   <a
-                    href="#"
+                    href="https://twitter.com" target="_blank" rel="noopener noreferrer"
                     className="bg-sky-100 w-10 h-10 rounded-full flex items-center justify-center hover:bg-sky-200 transition-colors"
                   >
                     <svg
@@ -143,7 +143,7 @@ const Contact = () => {
                     </svg>
                   </a>
                   <a
-                    href="#"
+                    href="https://instagram.com" target="_blank" rel="noopener noreferrer"
                     className="bg-pink-100 w-10 h-10 rounded-full flex items-center justify-center hover:bg-pink-200 transition-colors"
                   >
                     <svg
@@ -155,7 +155,7 @@ const Contact = () => {
                     </svg>
                   </a>
                   <a
-                    href="#"
+                    href="https://linkedin.com" target="_blank" rel="noopener noreferrer"
                     className="bg-blue-100 w-10 h-10 rounded-full flex items-center justify-center hover:bg-blue-200 transition-colors"
                   >
                     <svg

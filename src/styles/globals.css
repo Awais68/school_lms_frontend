@@ -222,3 +222,49 @@ html {
     -webkit-overflow-scrolling: touch;
   }
 }
+
+/* Home Page Hero Section - Ensure text visibility */
+.hero-title {
+  color: white !important;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.8), 
+               0 0 20px rgba(0,0,0,0.5);
+}
+
+.hero-subtitle {
+  color: rgba(255, 255, 255, 0.98) !important;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.7),
+               0 0 10px rgba(0,0,0,0.4);
+}
+
+/* 3D Card Flip Utility Classes */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+/* Ensure Why Choose Us cards are fully visible */
+.feature-card {
+  min-height: 320px;
+  width: 100%;
+}
+
+/* Stats section text enhancement */
+.stats-number {
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Fix for disappeared cards - ensure grid items are visible */
+[class*="grid"] > div {
+  min-width: 0; /* Prevent grid overflow */
+}

@@ -316,7 +316,7 @@ const HomeNew = () => {
                         color:
                           index === currentSlide
                             ? "white"
-                            : "white",
+                            : "rgba(255, 255, 255, 0.9)",
                         textShadow: "2px 2px 8px rgba(0,0,0,0.8)",
                       }}
                     >
@@ -327,8 +327,8 @@ const HomeNew = () => {
                       style={{
                         color:
                           index === currentSlide
-                            ? "white"
-                            : "rgba(255, 255, 255, 0.98)",
+                            ? "rgba(255, 255, 255, 0.95)"
+                            : "rgba(255, 255, 255, 0.85)",
                         textShadow: "1px 1px 4px rgba(0,0,0,0.7)",
                       }}
                     >
@@ -565,7 +565,7 @@ const HomeNew = () => {
 
           <div
             ref={featuresRef}
-            className="grid grid-cols-1 md:grid-cols-2 gap-10"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10"
           >
             {features.map((feature, index) => (
               <div

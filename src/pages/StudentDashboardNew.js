@@ -5,8 +5,8 @@ import Sidebar from "../components/common/Sidebar";
 
 const StudentDashboard = () => {
   const { user } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({
+  const [, setLoading] = useState(true);
+  const [stats] = useState({
     enrolledCourses: 5,
     completedCourses: 2,
     pendingAssignments: 3,
