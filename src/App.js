@@ -148,13 +148,7 @@ function App() {
               />
               <Route
                 path="/student/assignments"
-            <Route path="/student/video-call" element={<PrivateRoute><StudentVideoCall /></PrivateRoute>} />
-            <Route path="/student/attendance" element={<PrivateRoute><StudentAttendance /></PrivateRoute>} />
-            <Route path="/student/quizzes" element={<PrivateRoute><StudentQuizzes /></PrivateRoute>} />
-            <Route path="/student/results" element={<PrivateRoute><StudentResults /></PrivateRoute>} />
-            <Route path="/student/discussions" element={<PrivateRoute><StudentDiscussions /></PrivateRoute>} />
-            <Route path="/student/progress" element={<PrivateRoute><StudentProgress /></PrivateRoute>} />
-            <Route path="/student/teachers" element={<PrivateRoute><StudentTeachers /></PrivateRoute>} />
+
                 element={
                   <PrivateRoute allowedRoles={["student"]}>
                     <StudentAssignments />
@@ -166,6 +160,62 @@ function App() {
                 element={
                   <PrivateRoute allowedRoles={["student"]}>
                     <StudentFeeStatus />
+              <Route
+                path="/student/video-call"
+                element={
+                  <PrivateRoute allowedRoles={["student"]}>
+                    <StudentVideoCall />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/student/attendance"
+                element={
+                  <PrivateRoute allowedRoles={["student"]}>
+                    <StudentAttendance />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/student/quizzes"
+                element={
+                  <PrivateRoute allowedRoles={["student"]}>
+                    <StudentQuizzes />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/student/results"
+                element={
+                  <PrivateRoute allowedRoles={["student"]}>
+                    <StudentResults />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/student/discussions"
+                element={
+                  <PrivateRoute allowedRoles={["student"]}>
+                    <StudentDiscussions />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/student/progress"
+                element={
+                  <PrivateRoute allowedRoles={["student"]}>
+                    <StudentProgress />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/student/teachers"
+                element={
+                  <PrivateRoute allowedRoles={["student"]}>
+                    <StudentTeachers />
+                  </PrivateRoute>
+                }
+              />
                   </PrivateRoute>
                 }
               />
