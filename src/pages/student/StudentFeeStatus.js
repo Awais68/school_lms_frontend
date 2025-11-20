@@ -1,380 +1,388 @@
 import React, { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
 import NavbarNew from "../../components/common/NavbarNew";
 import Sidebar from "../../components/common/Sidebar";
 
 const StudentFeeStatus = () => {
-  const [feeInfo] = useState({
-    studentId: "STD-2024-001",
-    studentName: "John Doe",
-    class: "Grade 10 - Section A",
-    session: "2024-2025",
-    totalFee: 50000,
-    paidAmount: 30000,
-    pendingAmount: 20000,
-    nextDueDate: "2024-04-15",
-    status: "Partially Paid",
-  });
+  const { user } = useAuth();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedFee, setSelectedFee] = useState(null);
 
-  const [feeHistory] = useState([
+  const feeRecords = [
     {
       id: 1,
-      voucherNo: "FV-2024-001",
-      month: "January 2024",
-      amount: 10000,
-      paidDate: "2024-01-05",
-      paymentMethod: "Bank Transfer",
+      month: "January 2025",
+      amount: 5000,
       status: "Paid",
-      receiptNo: "RCP-2024-001",
+      dueDate: "2025-01-10",
+      paidDate: "2025-01-08",
+      voucherNumber: "VCH-2025-001",
     },
     {
       id: 2,
-      voucherNo: "FV-2024-002",
-      month: "February 2024",
-      amount: 10000,
-      paidDate: "2024-02-05",
-      paymentMethod: "Online Payment",
+      month: "February 2025",
+      amount: 5000,
       status: "Paid",
-      receiptNo: "RCP-2024-002",
+      dueDate: "2025-02-10",
+      paidDate: "2025-02-09",
+      voucherNumber: "VCH-2025-002",
     },
     {
       id: 3,
-      voucherNo: "FV-2024-003",
-      month: "March 2024",
-      amount: 10000,
-      paidDate: "2024-03-05",
-      paymentMethod: "Cash",
-      status: "Paid",
-      receiptNo: "RCP-2024-003",
+      month: "March 2025",
+      amount: 5000,
+      status: "Pending",
+      dueDate: "2025-03-10",
+      paidDate: null,
+      voucherNumber: "VCH-2025-003",
     },
     {
       id: 4,
-      voucherNo: "FV-2024-004",
-      month: "April 2024",
-      amount: 10000,
-      dueDate: "2024-04-15",
+      month: "April 2025",
+      amount: 5000,
+      status: "Overdue",
+      dueDate: "2025-04-10",
+      paidDate: null,
+      voucherNumber: "VCH-2025-004",
+    },
+  ];
+
+  const filteredRecords = feeRecords.filter((record) => {
+    const matchesSearch = record.month
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    const matchesFilter =
+      filterStatus === "all" ||
+      record.status.toLowerCase() === filterStatus.toLowerCase();
+    return matchesSearch && matchesFilter;
+  });
+
+  const downloadVoucher = (record) => {
+    // Create a simple voucher HTML
+    const voucherHTML = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Fee Voucher - ${record.voucherNumber}</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 40px; }
+          .voucher { border: 2px solid #000; padding: 30px; max-width: 600px; margin: 0 auto; }
+          .header { text-align: center; margin-bottom: 30px; }
+          .row { display: flex; justify-content: space-between; margin: 10px 0; }
+          .footer { margin-top: 30px; border-top: 1px solid #ccc; padding-top: 20px; }
+        </style>
+      </head>
+      <body>
+        <div class="voucher">
+          <div class="header">
+            <h1>School LMS</h1>
+            <h2>Fee Voucher</h2>
+          </div>
+          <div class="row"><strong>Voucher Number:</strong> ${record.voucherNumber}</div>
+          <div class="row"><strong>Student Name:</strong> ${user?.firstName} ${user?.lastName}</div>
+          <div class="row"><strong>Month:</strong> ${record.month}</div>
+          <div class="row"><strong>Amount:</strong> PKR ${record.amount}</div>
+          <div class="row"><strong>Due Date:</strong> ${record.dueDate}</div>
+          <div class="row"><strong>Status:</strong> ${record.status}</div>
+          ${record.paidDate ? `<div class="row"><strong>Paid Date:</strong> ${record.paidDate}</div>` : ''}
+          <div class="footer">
+            <p style="text-align: center; font-size: 12px;">This is a computer-generated voucher.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+    
+    const blob = new Blob([voucherHTML], { type: 'text/html' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Voucher_${record.voucherNumber}.html`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const viewVoucher = (record) => {
+    const voucherWindow = window.open('', '_blank');
+    voucherWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Fee Voucher - ${record.voucherNumber}</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 40px; background: #f5f5f5; }
+          .voucher { background: white; border: 2px solid #333; padding: 40px; max-width: 700px; margin: 0 auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+          .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px; }
+          .header h1 { margin: 0; color: #2563eb; }
+          .header h2 { margin: 10px 0 0 0; color: #666; }
+          .row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed #ddd; }
+          .row strong { color: #333; }
+          .amount-box { background: #f0f9ff; border: 2px solid #2563eb; padding: 20px; margin: 20px 0; text-align: center; }
+          .amount-box .label { font-size: 14px; color: #666; }
+          .amount-box .amount { font-size: 32px; font-weight: bold; color: #2563eb; margin: 10px 0; }
+          .status { display: inline-block; padding: 6px 16px; border-radius: 20px; font-weight: bold; font-size: 14px; }
+          .status.paid { background: #dcfce7; color: #166534; }
+          .status.pending { background: #fef3c7; color: #854d0e; }
+          .status.overdue { background: #fee2e2; color: #991b1b; }
+          .footer { margin-top: 30px; padding-top: 20px; border-top: 2px solid #333; text-align: center; font-size: 12px; color: #666; }
+          @media print { body { background: white; } .voucher { box-shadow: none; } }
+        </style>
+      </head>
+      <body>
+        <div class="voucher">
+          <div class="header">
+            <h1>🎓 School LMS</h1>
+            <h2>Fee Payment Voucher</h2>
+          </div>
+          <div class="row">
+            <strong>Voucher Number:</strong>
+            <span>${record.voucherNumber}</span>
+          </div>
+          <div class="row">
+            <strong>Student Name:</strong>
+            <span>${user?.firstName} ${user?.lastName}</span>
+          </div>
+          <div class="row">
+            <strong>Fee Month:</strong>
+            <span>${record.month}</span>
+          </div>
+          <div class="row">
+            <strong>Due Date:</strong>
+            <span>${record.dueDate}</span>
+          </div>
+          ${record.paidDate ? `<div class="row"><strong>Paid Date:</strong><span>${record.paidDate}</span></div>` : ''}
+          <div class="amount-box">
+            <div class="label">Total Amount</div>
+            <div class="amount">PKR ${record.amount.toLocaleString()}</div>
+          </div>
+          <div class="row">
+            <strong>Payment Status:</strong>
+            <span class="status ${record.status.toLowerCase()}">${record.status}</span>
+          </div>
+          <div class="footer">
+            <p><strong>Bank Details for Payment:</strong></p>
+            <p>Account Title: School LMS | Account Number: 1234567890 | Bank: ABC Bank</p>
+            <p style="margin-top: 20px;">This is a computer-generated voucher. No signature required.</p>
+            <p style="margin-top: 10px;"><button onclick="window.print()" style="padding: 10px 20px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer;">Print Voucher</button></p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `);
+  };
+
+  const generateVoucher = () => {
+    const newVoucher = {
+      id: feeRecords.length + 1,
+      month: new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+      amount: 5000,
       status: "Pending",
-    },
-    {
-      id: 5,
-      voucherNo: "FV-2024-005",
-      month: "May 2024",
-      amount: 10000,
-      dueDate: "2024-05-15",
-      status: "Upcoming",
-    },
-  ]);
+      dueDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      paidDate: null,
+      voucherNumber: `VCH-2025-${String(feeRecords.length + 1).padStart(3, '0')}`,
+    };
+    alert(`New voucher generated: ${newVoucher.voucherNumber}`);
+    viewVoucher(newVoucher);
+  };
 
-  const [feeBreakdown] = useState([
-    { category: "Tuition Fee", amount: 30000 },
-    { category: "Lab Fee", amount: 5000 },
-    { category: "Library Fee", amount: 3000 },
-    { category: "Sports Fee", amount: 4000 },
-    { category: "Exam Fee", amount: 8000 },
-  ]);
+  const makePayment = (record) => {
+    setSelectedFee(record);
+    setShowPaymentModal(true);
+  };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "Paid":
-        return "bg-green-100 text-green-700 border-green-300";
-      case "Pending":
-        return "bg-yellow-100 text-yellow-700 border-yellow-300";
-      case "Upcoming":
-        return "bg-blue-100 text-blue-700 border-blue-300";
-      case "Overdue":
-        return "bg-red-100 text-red-700 border-red-300";
-      default:
-        return "bg-gray-100 text-gray-700 border-gray-300";
-    }
+  const processPayment = () => {
+    alert(`Payment of PKR ${selectedFee.amount} processed successfully for ${selectedFee.month}`);
+    setShowPaymentModal(false);
+  };
+
+  const contactAdmin = () => {
+    window.location.href = "mailto:admin@schoollms.com?subject=Fee Inquiry&body=Hello, I have a question about my fee status.";
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <NavbarNew />
       <Sidebar />
 
       <div className="ml-16 mt-16 p-6">
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             Fee Status
           </h1>
-          <p className="text-gray-600 mt-2">
+          <p className="text-gray-600 dark:text-gray-300 mt-2">
             View and manage your fee payments
           </p>
         </div>
 
-        {/* Student Info Card */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg shadow-lg p-6 mb-8 text-white">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div>
-              <p className="text-blue-100 text-sm">Student ID</p>
-              <p className="text-xl font-bold">{feeInfo.studentId}</p>
-            </div>
-            <div>
-              <p className="text-blue-100 text-sm">Student Name</p>
-              <p className="text-xl font-bold">{feeInfo.studentName}</p>
-            </div>
-            <div>
-              <p className="text-blue-100 text-sm">Class</p>
-              <p className="text-xl font-bold">{feeInfo.class}</p>
-            </div>
-            <div>
-              <p className="text-blue-100 text-sm">Session</p>
-              <p className="text-xl font-bold">{feeInfo.session}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Fee Summary */}
+        {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-gray-600 text-sm">Total Fee</p>
-              <div className="bg-blue-100 p-2 rounded-full">
-                <svg
-                  className="h-5 w-5 text-blue-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border-l-4 border-green-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">Total Paid</p>
+                <p className="text-3xl font-bold text-green-600">PKR 10,000</p>
+              </div>
+              <div className="h-12 w-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
+                <span className="text-2xl">✓</span>
               </div>
             </div>
-            <p className="text-3xl font-bold text-gray-900">
-              ₹{feeInfo.totalFee.toLocaleString()}
-            </p>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-gray-600 text-sm">Paid Amount</p>
-              <div className="bg-green-100 p-2 rounded-full">
-                <svg
-                  className="h-5 w-5 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border-l-4 border-yellow-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">Pending</p>
+                <p className="text-3xl font-bold text-yellow-600">PKR 5,000</p>
+              </div>
+              <div className="h-12 w-12 bg-yellow-100 dark:bg-yellow-900 rounded-full flex items-center justify-center">
+                <span className="text-2xl">⏳</span>
               </div>
             </div>
-            <p className="text-3xl font-bold text-green-600">
-              ₹{feeInfo.paidAmount.toLocaleString()}
-            </p>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-gray-600 text-sm">Pending Amount</p>
-              <div className="bg-red-100 p-2 rounded-full">
-                <svg
-                  className="h-5 w-5 text-red-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border-l-4 border-red-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">Overdue</p>
+                <p className="text-3xl font-bold text-red-600">PKR 5,000</p>
+              </div>
+              <div className="h-12 w-12 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center">
+                <span className="text-2xl">⚠</span>
               </div>
             </div>
-            <p className="text-3xl font-bold text-red-600">
-              ₹{feeInfo.pendingAmount.toLocaleString()}
-            </p>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-gray-600 text-sm">Next Due Date</p>
-              <div className="bg-yellow-100 p-2 rounded-full">
-                <svg
-                  className="h-5 w-5 text-yellow-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">Total Due</p>
+                <p className="text-3xl font-bold text-blue-600">PKR 20,000</p>
+              </div>
+              <div className="h-12 w-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                <span className="text-2xl">💰</span>
               </div>
             </div>
-            <p className="text-xl font-bold text-gray-900">
-              {new Date(feeInfo.nextDueDate).toLocaleDateString()}
-            </p>
           </div>
         </div>
 
-        {/* Fee Breakdown */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">
-            Fee Breakdown
-          </h2>
-          <div className="space-y-4">
-            {feeBreakdown.map((item, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+        {/* Actions Bar */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+          <div className="flex flex-wrap gap-4 items-center justify-between">
+            <div className="flex gap-4 flex-1">
+              <input
+                type="text"
+                placeholder="Search by month..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="flex-1 max-w-md px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              />
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
               >
-                <div className="flex items-center">
-                  <div className="bg-blue-100 p-2 rounded-full mr-4">
-                    <svg
-                      className="h-5 w-5 text-blue-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                  </div>
-                  <span className="font-medium text-gray-900">
-                    {item.category}
-                  </span>
-                </div>
-                <span className="text-lg font-bold text-gray-900">
-                  ₹{item.amount.toLocaleString()}
-                </span>
-              </div>
-            ))}
+                <option value="all">All Status</option>
+                <option value="paid">Paid</option>
+                <option value="pending">Pending</option>
+                <option value="overdue">Overdue</option>
+              </select>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={generateVoucher}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-all"
+              >
+                Generate Voucher
+              </button>
+              <button
+                onClick={contactAdmin}
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-all"
+              >
+                Contact Admin
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Fee History */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">
-            Payment History
-          </h2>
+        {/* Fee Records Table */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead>
-                <tr className="border-b-2 border-gray-200">
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">
-                    Voucher No
-                  </th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">
+              <thead className="bg-gray-50 dark:bg-gray-700">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Month
                   </th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Amount
                   </th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">
-                    Date
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Due Date
                   </th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">
-                    Payment Method
-                  </th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Voucher
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody>
-                {feeHistory.map((record) => (
-                  <tr
-                    key={record.id}
-                    className="border-b border-gray-100 hover:bg-gray-50"
-                  >
-                    <td className="py-4 px-4 text-gray-900 font-medium">
-                      {record.voucherNo}
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                {filteredRecords.map((record) => (
+                  <tr key={record.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                      {record.month}
                     </td>
-                    <td className="py-4 px-4 text-gray-900">{record.month}</td>
-                    <td className="py-4 px-4 text-gray-900 font-semibold">
-                      ₹{record.amount.toLocaleString()}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                      PKR {record.amount.toLocaleString()}
                     </td>
-                    <td className="py-4 px-4 text-gray-600">
-                      {record.paidDate
-                        ? new Date(record.paidDate).toLocaleDateString()
-                        : record.dueDate
-                        ? `Due: ${new Date(
-                            record.dueDate
-                          ).toLocaleDateString()}`
-                        : "-"}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
+                      {record.dueDate}
                     </td>
-                    <td className="py-4 px-4 text-gray-600">
-                      {record.paymentMethod || "-"}
-                    </td>
-                    <td className="py-4 px-4">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <span
-                        className={`px-3 py-1 text-xs font-semibold rounded-full border ${getStatusColor(
-                          record.status
-                        )}`}
+                        className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          record.status === "Paid"
+                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+                            : record.status === "Pending"
+                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
+                            : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
+                        }`}
                       >
                         {record.status}
                       </span>
                     </td>
-                    <td className="py-4 px-4">
-                      {record.status === "Paid" ? (
-                        <button className="text-blue-600 hover:text-blue-800 font-medium flex items-center">
-                          <svg
-                            className="h-4 w-4 mr-1"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                            />
-                          </svg>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
+                      {record.voucherNumber}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => viewVoucher(record)}
+                          className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                        >
+                          View
+                        </button>
+                        <button
+                          onClick={() => downloadVoucher(record)}
+                          className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
+                        >
                           Download
                         </button>
-                      ) : record.status === "Pending" ? (
-                        <button className="bg-green-600 text-white px-4 py-1 rounded-lg hover:bg-green-700 transition-all text-sm font-medium">
-                          Pay Now
-                        </button>
-                      ) : (
-                        <button className="text-gray-400 font-medium text-sm cursor-not-allowed flex items-center">
-                          <svg
-                            className="h-4 w-4 mr-1"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
+                        {record.status !== "Paid" && (
+                          <button
+                            onClick={() => makePayment(record)}
+                            className="text-purple-600 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-300"
                           >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                            />
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                            />
-                          </svg>
-                          View Voucher
-                        </button>
-                      )}
+                            Pay Now
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -383,59 +391,55 @@ const StudentFeeStatus = () => {
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-          <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-lg shadow-md hover:shadow-xl transition-all flex items-center justify-center">
-            <svg
-              className="h-6 w-6 mr-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
-              />
-            </svg>
-            <span className="font-semibold text-lg">Make Payment</span>
-          </button>
-
-          <button className="bg-gradient-to-r from-green-600 to-teal-600 text-white p-6 rounded-lg shadow-md hover:shadow-xl transition-all flex items-center justify-center">
-            <svg
-              className="h-6 w-6 mr-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-              />
-            </svg>
-            <span className="font-semibold text-lg">Generate Voucher</span>
-          </button>
-
-          <button className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-6 rounded-lg shadow-md hover:shadow-xl transition-all flex items-center justify-center">
-            <svg
-              className="h-6 w-6 mr-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <span className="font-semibold text-lg">Contact Admin</span>
-          </button>
-        </div>
+        {/* Payment Modal */}
+        {showPaymentModal && selectedFee && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-md w-full">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                Make Payment
+              </h2>
+              <div className="space-y-4 mb-6">
+                <div>
+                  <p className="text-gray-600 dark:text-gray-400">Month:</p>
+                  <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                    {selectedFee.month}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-gray-600 dark:text-gray-400">Amount:</p>
+                  <p className="text-2xl font-bold text-blue-600">
+                    PKR {selectedFee.amount.toLocaleString()}
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-gray-700 dark:text-gray-300 mb-2">
+                    Payment Method
+                  </label>
+                  <select className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white">
+                    <option>Bank Transfer</option>
+                    <option>Credit Card</option>
+                    <option>Debit Card</option>
+                    <option>Cash</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={processPayment}
+                  className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all"
+                >
+                  Confirm Payment
+                </button>
+                <button
+                  onClick={() => setShowPaymentModal(false)}
+                  className="flex-1 px-6 py-3 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-400 dark:hover:bg-gray-500 transition-all"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

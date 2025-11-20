@@ -29,6 +29,13 @@ import NotFound from "./pages/NotFound";
 import StudentCourses from "./pages/student/StudentCourses";
 import StudentAssignments from "./pages/student/StudentAssignments";
 import StudentFeeStatus from "./pages/student/StudentFeeStatus";
+import StudentVideoCall from "./pages/student/StudentVideoCall";
+import StudentAttendance from "./pages/student/StudentAttendance";
+import StudentQuizzes from "./pages/student/StudentQuizzes";
+import StudentResults from "./pages/student/StudentResults";
+import StudentDiscussions from "./pages/student/StudentDiscussions";
+import StudentProgress from "./pages/student/StudentProgress";
+import StudentTeachers from "./pages/student/StudentTeachers";
 
 // Common Pages
 import Profile from "./pages/Profile";
@@ -141,6 +148,13 @@ function App() {
               />
               <Route
                 path="/student/assignments"
+            <Route path="/student/video-call" element={<PrivateRoute><StudentVideoCall /></PrivateRoute>} />
+            <Route path="/student/attendance" element={<PrivateRoute><StudentAttendance /></PrivateRoute>} />
+            <Route path="/student/quizzes" element={<PrivateRoute><StudentQuizzes /></PrivateRoute>} />
+            <Route path="/student/results" element={<PrivateRoute><StudentResults /></PrivateRoute>} />
+            <Route path="/student/discussions" element={<PrivateRoute><StudentDiscussions /></PrivateRoute>} />
+            <Route path="/student/progress" element={<PrivateRoute><StudentProgress /></PrivateRoute>} />
+            <Route path="/student/teachers" element={<PrivateRoute><StudentTeachers /></PrivateRoute>} />
                 element={
                   <PrivateRoute allowedRoles={["student"]}>
                     <StudentAssignments />
