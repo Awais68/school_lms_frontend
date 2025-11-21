@@ -73,7 +73,6 @@ const Login = () => {
       ease: "power2.out",
       delay: 0.5,
     });
-
   }, []);
   // Auto-fill credentials from registration
   useEffect(() => {
@@ -95,48 +94,68 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
 
-    try {
-      const result = await login(formData.email, formData.password);
+    let retries = 0;
+    const maxRetries = 2;
 
-      if (result.success) {
-        // Success animation - rotate and zoom out
-        gsap.to(cardRef.current, {
-          rotation: 360,
-          scale: 0,
-          duration: 0.8,
-          ease: "back.in(1.7)",
-          onComplete: () => {
-            // Redirect based on user role
-            switch (result.data.user.role) {
-              case "admin":
-                navigate("/admin");
-                break;
-              case "teacher":
-                navigate("/teacher");
-                break;
-              case "student":
-                navigate("/student");
-                break;
-              case "parent":
-                navigate("/parent");
-                break;
-              case "accountant":
-                navigate("/accountant");
-                break;
-              default:
-                navigate("/");
-            }
-          },
-        });
-        toast.success("Login successful!");
-      } else {
-        toast.error(result.message);
+    const attemptLogin = async () => {
+      try {
+        const result = await login(formData.email, formData.password);
+
+        if (result.success) {
+          // Success animation - rotate and zoom out
+          gsap.to(cardRef.current, {
+            rotation: 360,
+            scale: 0,
+            duration: 0.8,
+            ease: "back.in(1.7)",
+            onComplete: () => {
+              // Redirect based on user role
+              switch (result.data.user.role) {
+                case "admin":
+                  navigate("/admin");
+                  break;
+                case "teacher":
+                  navigate("/teacher");
+                  break;
+                case "student":
+                  navigate("/student");
+                  break;
+                case "parent":
+                  navigate("/parent");
+                  break;
+                case "accountant":
+                  navigate("/accountant");
+                  break;
+                default:
+                  navigate("/");
+              }
+            },
+          });
+          toast.success("Login successful!");
+        } else {
+          toast.error(result.message);
+        }
+      } catch (error) {
+        // Check if it's a 500 error and retry
+        if (error.response?.status === 500 && retries < maxRetries) {
+          retries++;
+          toast.error(
+            `Server is waking up... Retrying (${retries}/${maxRetries})`
+          );
+          await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait 2 seconds
+          return attemptLogin();
+        }
+
+        const errorMessage =
+          error.response?.data?.message ||
+          "Login failed. Please check your credentials.";
+        toast.error(errorMessage);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      toast.error("Login failed. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+    };
+
+    attemptLogin();
   };
 
   return (
@@ -310,7 +329,6 @@ const Login = () => {
       </div>
     </div>
   );
-
 };
 
 export default Login;
